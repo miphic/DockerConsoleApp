@@ -1,0 +1,50 @@
+version: '3.9'
+
+services:
+    #dockerconsoleapp:
+    #    image: ${DOCKER_REGISTRY-}dockerconsoleapp
+    #    build:
+    #      context: .
+    #      dockerfile: ./DockerConsoleApp/Dockerfile
+    #    networks:
+    #    - consoleapp1
+    db:
+        # pg_db - is accessable whith hostname pg_db & port 5432 ! from other conteiners !!!!!!
+        container_name: pg_db
+        image: postgres:15.3-alpine3.18
+        mem_limit: 1024MB
+        mem_reservation: 515M
+        environment:            
+            POSTGRES_USER: otus5
+            POSTGRES_PASSWORD: otus5
+            POSTGRES_DB: AppDB
+        ports:
+        - "5455:5432"
+        restart: unless-stopped
+        networks:
+        - consoleapp1
+        volumes:
+        - db-data:/var/lib/postgresql/data    
+    pgadmin:
+        container_name: pgadmin-container
+        image: dpage/pgadmin4
+        environment:
+          PGADMIN_DEFAULT_EMAIL: otus5@noemail.com
+          PGADMIN_DEFAULT_PASSWORD: otus5
+          PGDATA: "/var/lib/pgadmin/pgdata"
+        volumes:
+        - pgadmin-data:/var/lib/pgadmin
+        ports:
+        - "5050:80"
+        restart: unless-stopped        
+        networks:
+        - consoleapp1
+
+networks:
+    consoleapp1:                  
+        driver: 
+            bridge 
+
+volumes:
+    db-data:
+    pgadmin-data:
